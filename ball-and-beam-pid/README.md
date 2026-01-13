@@ -66,7 +66,7 @@ Enable Button:
 
 - **Beam Length:** 32.2 cm
 - **Valid Range:** 1.5 - 33.7 cm from sensor
-- **Servo Flat Position:** 124° (adjust based on your servo)
+- **Servo Flat Position:** 112° (adjust based on your servo)
 - **Servo Range:** 25° - 180°
 
 Mount the VL53L0X sensor at one end of the beam, pointing along its length. The servo should be positioned to tilt the beam, with the ball able to roll freely along the surface.
