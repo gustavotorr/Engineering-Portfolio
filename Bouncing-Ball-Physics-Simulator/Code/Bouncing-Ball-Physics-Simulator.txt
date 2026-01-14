@@ -1,0 +1,727 @@
+(* =============BOUNCING MASS WITH REALISTIC MASS-DEPENDENT EFFECTS=======================*)Print["\n========================================"];
+Print["BOUNCING MASS PHYSICS DEMONSTRATION"];
+Print["REALISTIC MASS-DEPENDENT BEHAVIOR"];
+Print["========================================\n"];
+
+(* ===========================IMPACT PHYSICS PARAMETERS==========================*)
+massObject1=0.7;          (*Mass of objects 1-3 (kg)*)
+massObject4=1.5;          (*Mass of object 4-HEAVIER! (kg)*)
+gBounce=9.81;             (*Gravity (m/s^2)*)
+
+(*VISUAL SIZES-Heavier mass looks bigger!*)
+radiusMass1=0.15;         (*Radius for masses 1-3 (m)*)
+radiusMass4=0.20;         (*Radius for mass 4-BIGGER! (m)*)
+
+(*Impact Parameters*)
+eBounce=0.7;              (*Coefficient of restitution for all*)
+
+(*MASS-DEPENDENT FRICTION:Heavier objects have more "grip"*)
+muBounce1=0.09;           (*Friction for light masses*)
+muBounce4=0.15;           (*Friction for heavy mass-MORE FRICTION!*)
+
+(*Ground level*)
+groundLevel=0.0;
+
+(*Throw parameters*)
+throwHeight=2.5;
+throwVelocityX=2.5;
+throwVelocityY=1.0;
+
+Print["Physics Parameters:"];
+Print["  Mass 1-3: ",massObject1," kg, friction \[Mu] = ",muBounce1];
+Print["  Mass 4: ",massObject4," kg (",Round[(massObject4/massObject1-1)*100],"% heavier), friction \[Mu] = ",muBounce4," (",Round[(muBounce4/muBounce1-1)*100],"% more friction!)"];
+Print["  Gravity: ",gBounce," m/s²"];
+Print["  Restitution coefficient (e): ",eBounce];
+Print["  Throw velocity: (",throwVelocityX,", ",throwVelocityY,") m/s"];
+Print["\nKey Difference: Heavier mass has MORE friction,"];
+Print["so it loses horizontal velocity FASTER after bouncing!"];
+Print[""];
+
+(* ===========================FLIGHT DYNAMICS=====================================*)
+xFlight[t_,x0_,vx0_]:=x0+vx0*t
+yFlight[t_,y0_,vy0_]:=y0+vy0*t-0.5*gBounce*t^2
+vxFlight[t_,vx0_]:=vx0
+vyFlight[t_,vy0_]:=vy0-gBounce*t
+
+(* ===========================IMPACT DETECTION AND PHYSICS================================*)
+
+FindImpactTime[y0_,vy0_,radius_]:=Module[{sol},sol=Solve[y0+vy0*t-0.5*gBounce*t^2==radius&&t>0,t,Reals];
+If[Length[sol]>0,t/. sol[[1]],Infinity]];
+
+(*MODIFIED:ApplyImpact with mass-dependent friction*)
+ApplyImpact[vxMinus_,vyMinus_,mass_,mu_]:=Module[{vxPlus,vyPlus,Jn,Jt,deltaVx,status,energyRetained},Print["  === IMPACT DETECTED ==="];
+Print["  Mass: ",mass," kg, \[Mu] = ",mu];
+Print["  Pre-impact:  vx⁻ = ",N[vxMinus,4]," m/s,  vy⁻ = ",N[vyMinus,4]," m/s"];
+(*Normal:Newton's Restitution*)vyPlus=-eBounce*vyMinus;
+Jn=mass*Abs[vyMinus]*(1+eBounce);
+(*Tangential:Coulomb Friction-use provided mu*)Jt=mu*Jn;
+deltaVx=Jt/mass;
+If[Abs[vxMinus]>deltaVx,vxPlus=vxMinus-Sign[vxMinus]*deltaVx;
+status="SLIDING",vxPlus=0;
+status="STICKING"];
+energyRetained=100*0.5*mass*(vxPlus^2+vyPlus^2)/(0.5*mass*(vxMinus^2+vyMinus^2));
+Print["  \[CapitalDelta]Vx = ",N[deltaVx,4]," m/s (friction effect)"];
+Print["  Status: ",status];
+Print["  Post-impact: vx⁺ = ",N[vxPlus,4]," m/s,  vy⁺ = ",N[vyPlus,4]," m/s"];
+Print["  Energy retained: ",N[energyRetained,4],"%"];
+Print[""];
+{vxPlus,vyPlus}];
+
+(* =============================BUILD BOUNCING TRAJECTORY==============================*)
+
+BuildBouncingTrajectory[x0_,y0_,vx0_,vy0_,tMax_,massName_,mass_,radius_,mu_]:=Module[{segments={},impactTimes={},impactLocations={},t=0,x=x0,y=y0,vx=vx0,vy=vy0,tImpact,xImpact,bounceCount=0},Print["=== SIMULATING ",massName," ==="];
+Print["Mass: ",mass," kg, Radius: ",radius," m, Friction: \[Mu] = ",mu];
+Print["Initial: (",N[x0,3],", ",N[y0,3],") m, velocity (",N[vx0,3],", ",N[vy0,3],") m/s"];
+Print[""];
+While[t<tMax&&bounceCount<20,tImpact=FindImpactTime[y,vy,radius];
+If[tImpact==Infinity||t+tImpact>tMax,AppendTo[segments,{t,tMax,x,y,vx,vy}];
+Break[];];
+AppendTo[segments,{t,t+tImpact,x,y,vx,vy}];
+t=t+tImpact;
+xImpact=xFlight[tImpact,x,vx];
+x=xImpact;
+y=radius;
+vx=vxFlight[tImpact,vx];
+vy=vyFlight[tImpact,vy];
+Print["  Bounce #",bounceCount+1," at t = ",N[t,4]," s, location (",N[x,4],", ",N[y,4],") m"];
+AppendTo[impactTimes,t];
+AppendTo[impactLocations,{x,y}];
+(*Apply impact with mass-specific friction*){vx,vy}=ApplyImpact[vx,vy,mass,mu];
+bounceCount++;
+If[Abs[vy]<0.1,Print["  ",massName," stopped bouncing"];
+AppendTo[segments,{t,tMax,x,radius,vx,0}];
+Break[];];];
+Print["  Total bounces: ",bounceCount];
+Print["  Final x position: ",N[x,4]," m"];
+Print[""];
+{segments,impactTimes,impactLocations}];
+
+(* ================================SIMULATE ALL 4 MASSES================================*)
+
+tSimMax=8.0;
+
+startX1=-1.5;
+startX2=-0.5;
+startX3=0.5;
+startX4=1.5;
+
+Print["========================================"];
+Print["RUNNING BOUNCING SIMULATIONS"];
+Print["========================================\n"];
+
+{traj1,impacts1,locs1}=BuildBouncingTrajectory[startX1,throwHeight,throwVelocityX,throwVelocityY,tSimMax,"MASS 1 (Red)",massObject1,radiusMass1,muBounce1];
+
+{traj2,impacts2,locs2}=BuildBouncingTrajectory[startX2,throwHeight,throwVelocityX,throwVelocityY,tSimMax,"MASS 2 (Green)",massObject1,radiusMass1,muBounce1];
+
+{traj3,impacts3,locs3}=BuildBouncingTrajectory[startX3,throwHeight,throwVelocityX,throwVelocityY,tSimMax,"MASS 3 (Blue)",massObject1,radiusMass1,muBounce1];
+
+{traj4,impacts4,locs4}=BuildBouncingTrajectory[startX4,throwHeight,throwVelocityX,throwVelocityY,tSimMax,"MASS 4 (Magenta) - HEAVY",massObject4,radiusMass4,muBounce4];
+
+Print["========================================"];
+Print["ALL BOUNCING SIMULATIONS COMPLETE"];
+Print["========================================"];
+Print["\nCOMPARISON OF FINAL POSITIONS:"];
+Print["  Mass 1 final x: ",N[Last[traj1][[3]],3]," m"];
+Print["  Mass 2 final x: ",N[Last[traj2][[3]],3]," m"];
+Print["  Mass 3 final x: ",N[Last[traj3][[3]],3]," m"];
+Print["  Mass 4 final x: ",N[Last[traj4][[3]],3]," m"];
+Print["\nMass 4 should travel LESS distance horizontally"];
+Print["because it has MORE FRICTION (loses vx faster)!\n"];
+
+(* ===============================POSITION FUNCTION==================================*)
+
+GetMassPosition[traj_,time_?NumericQ,radius_]:=Module[{seg,tLocal,x,y},seg=SelectFirst[traj,(#[[1]]<=time<=#[[2]])&,None];
+If[seg===None,seg=Last[traj]];
+tLocal=If[seg===None,0,time-seg[[1]]];
+x=xFlight[tLocal,seg[[3]],seg[[5]]];
+y=Max[radius,yFlight[tLocal,seg[[4]],seg[[6]]]];
+{x,y}];
+
+(* ================================VISUALIZATION=====================================*)
+
+Print["========================================"];
+Print["CREATING PLOTS AND ANIMATION"];
+Print["========================================\n"];
+
+allLocs=Flatten[{locs1,locs2,locs3,locs4},1];
+xMaxPlot=If[Length[allLocs]>0,Max[allLocs[[All,1]]]+2,startX4+5];
+xMinPlot=Min[{startX1,startX2,startX3,startX4}]-1;
+
+ground=Graphics[{Brown,Thickness[0.015],Line[{{xMinPlot,groundLevel},{xMaxPlot,groundLevel}}]}];
+
+allImpactMarkers=Graphics[{If[Length[locs1]>0,{Red,PointSize[0.012],Point[locs1]},{}],If[Length[locs2]>0,{Green,PointSize[0.012],Point[locs2]},{}],If[Length[locs3]>0,{Blue,PointSize[0.012],Point[locs3]},{}],If[Length[locs4]>0,{Magenta,PointSize[0.012],Point[locs4]},{}]}];
+
+staticPlot=Show[ground,ParametricPlot[GetMassPosition[traj1,t,radiusMass1],{t,0,tSimMax},PlotStyle->{Thick,Red,Dashed},PlotPoints->200],ParametricPlot[GetMassPosition[traj2,t,radiusMass1],{t,0,tSimMax},PlotStyle->{Thick,Green,Dashed},PlotPoints->200],ParametricPlot[GetMassPosition[traj3,t,radiusMass1],{t,0,tSimMax},PlotStyle->{Thick,Blue,Dashed},PlotPoints->200],ParametricPlot[GetMassPosition[traj4,t,radiusMass4],{t,0,tSimMax},PlotStyle->{Thick,Magenta,Dashed},PlotPoints->200],allImpactMarkers,PlotRange->{{xMinPlot,xMaxPlot},{-0.5,throwHeight+1}},AspectRatio->1/3,Frame->True,FrameLabel->{"x (m)","y (m)"},PlotLabel->"Mass-Dependent Bouncing\nMass 4 (Magenta) has MORE FRICTION \[RightArrow] stops sooner!",ImageSize->Large,GridLines->Automatic];
+
+staticPlot
+
+bouncingAnimation=Animate[Module[{pos1,pos2,pos3,pos4,trail1,trail2,trail3,trail4},pos1=GetMassPosition[traj1,t,radiusMass1];
+pos2=GetMassPosition[traj2,t,radiusMass1];
+pos3=GetMassPosition[traj3,t,radiusMass1];
+pos4=GetMassPosition[traj4,t,radiusMass4];
+trail1=If[t>0.1,Table[GetMassPosition[traj1,tau,radiusMass1],{tau,0,t,0.1}],{}];
+trail2=If[t>0.1,Table[GetMassPosition[traj2,tau,radiusMass1],{tau,0,t,0.1}],{}];
+trail3=If[t>0.1,Table[GetMassPosition[traj3,tau,radiusMass1],{tau,0,t,0.1}],{}];
+trail4=If[t>0.1,Table[GetMassPosition[traj4,tau,radiusMass4],{tau,0,t,0.1}],{}];
+Show[ground,Graphics[{If[Length[trail1]>1,{Red,Dashed,Thickness[0.003],Line[trail1]},{}],If[Length[trail2]>1,{Green,Dashed,Thickness[0.003],Line[trail2]},{}],If[Length[trail3]>1,{Blue,Dashed,Thickness[0.003],Line[trail3]},{}],If[Length[trail4]>1,{Magenta,Dashed,Thickness[0.003],Line[trail4]},{}]}],Graphics[{{Red,EdgeForm[{Black,Thick}],Disk[pos1,radiusMass1]},{Green,EdgeForm[{Black,Thick}],Disk[pos2,radiusMass1]},{Blue,EdgeForm[{Black,Thick}],Disk[pos3,radiusMass1]},{Magenta,EdgeForm[{Black,Thick}],Disk[pos4,radiusMass4]}}],allImpactMarkers,PlotRange->{{xMinPlot,xMaxPlot},{-0.5,throwHeight+1}},AspectRatio->1/3,Frame->True,FrameLabel->{"x (m)","y (m)"},PlotLabel->"t = "<>ToString[NumberForm[t,{4,2}]]<>" s\nMass 4 (BIGGER, MAGENTA) has MORE FRICTION \[RightArrow] Stops sooner!",ImageSize->Large]],{t,0,tSimMax,0.05},AnimationRate->1,DefaultDuration->10];
+
+Print["========================================"];
+Print["MASS-DEPENDENT PHYSICS COMPLETE"];
+Print["========================================"];
+Print["\nKEY OBSERVATION:"];
+Print["Watch Mass 4 (Magenta) - it should:"];
+Print["  1. Lose horizontal velocity FASTER"];
+Print["  2. Travel LESS DISTANCE overall"];
+Print["\nThis is because heavier objects have"];
+Print["MORE friction force at impact!"];
+Print["========================================\n"];
+
+bouncingAnimation
+During evaluation of In[1]:= 
+========================================
+During evaluation of In[1]:= BOUNCING MASS PHYSICS DEMONSTRATION
+During evaluation of In[1]:= REALISTIC MASS-DEPENDENT BEHAVIOR
+During evaluation of In[1]:= ========================================
+
+During evaluation of In[1]:= Physics Parameters:
+During evaluation of In[1]:=   Mass 1-3: 0.7 kg, friction \[Mu] = 0.09
+During evaluation of In[1]:=   Mass 4: 1.5 kg (114% heavier), friction \[Mu] = 0.15 (67% more friction!)
+During evaluation of In[1]:=   Gravity: 9.81 m/s²
+During evaluation of In[1]:=   Restitution coefficient (e): 0.7
+During evaluation of In[1]:=   Throw velocity: (2.5, 1.) m/s
+During evaluation of In[1]:= 
+Key Difference: Heavier mass has MORE friction,
+During evaluation of In[1]:= so it loses horizontal velocity FASTER after bouncing!
+During evaluation of In[1]:= 
+During evaluation of In[1]:= ========================================
+During evaluation of In[1]:= RUNNING BOUNCING SIMULATIONS
+During evaluation of In[1]:= ========================================
+
+During evaluation of In[1]:= === SIMULATING MASS 1 (Red) ===
+During evaluation of In[1]:= Mass: 0.7 kg, Radius: 0.15 m, Friction: \[Mu] = 0.09
+During evaluation of In[1]:= Initial: (-1.5, 2.5) m, velocity (2.5, 1.) m/s
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #1 at t = 0.801575 s, location (0.503938, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 2.5 m/s,  vy⁻ = -6.86345 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 1.05011 m/s (friction effect)
+During evaluation of In[1]:=   Status: SLIDING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 1.44989 m/s,  vy⁺ = 4.80442 m/s
+During evaluation of In[1]:=   Energy retained: 47.2002%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #2 at t = 1.78107 s, location (1.9241, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 1.44989 m/s,  vy⁻ = -4.80442 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.735076 m/s (friction effect)
+During evaluation of In[1]:=   Status: SLIDING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0.714816 m/s,  vy⁺ = 3.36309 m/s
+During evaluation of In[1]:=   Energy retained: 46.9388%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #3 at t = 2.46672 s, location (2.41421, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0.714816 m/s,  vy⁻ = -3.36309 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.514553 m/s (friction effect)
+During evaluation of In[1]:=   Status: SLIDING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0.200262 m/s,  vy⁺ = 2.35416 m/s
+During evaluation of In[1]:=   Energy retained: 47.2213%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #4 at t = 2.94667 s, location (2.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0.200262 m/s,  vy⁻ = -2.35416 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.360187 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 1.64792 m/s
+During evaluation of In[1]:=   Energy retained: 48.648%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #5 at t = 3.28263 s, location (2.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -1.64792 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.252131 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 1.15354 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #6 at t = 3.51781 s, location (2.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -1.15354 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.176492 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.807478 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #7 at t = 3.68243 s, location (2.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.807478 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.123544 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.565235 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #8 at t = 3.79767 s, location (2.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.565235 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0864809 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.395664 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #9 at t = 3.87834 s, location (2.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.395664 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0605367 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.276965 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #10 at t = 3.9348 s, location (2.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.276965 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0423757 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.193876 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #11 at t = 3.97433 s, location (2.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.193876 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.029663 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.135713 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #12 at t = 4.002 s, location (2.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.135713 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0207641 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.094999 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   MASS 1 (Red) stopped bouncing
+During evaluation of In[1]:=   Total bounces: 12
+During evaluation of In[1]:=   Final x position: 2.51032 m
+During evaluation of In[1]:= 
+During evaluation of In[1]:= === SIMULATING MASS 2 (Green) ===
+During evaluation of In[1]:= Mass: 0.7 kg, Radius: 0.15 m, Friction: \[Mu] = 0.09
+During evaluation of In[1]:= Initial: (-0.5, 2.5) m, velocity (2.5, 1.) m/s
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #1 at t = 0.801575 s, location (1.50394, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 2.5 m/s,  vy⁻ = -6.86345 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 1.05011 m/s (friction effect)
+During evaluation of In[1]:=   Status: SLIDING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 1.44989 m/s,  vy⁺ = 4.80442 m/s
+During evaluation of In[1]:=   Energy retained: 47.2002%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #2 at t = 1.78107 s, location (2.9241, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 1.44989 m/s,  vy⁻ = -4.80442 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.735076 m/s (friction effect)
+During evaluation of In[1]:=   Status: SLIDING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0.714816 m/s,  vy⁺ = 3.36309 m/s
+During evaluation of In[1]:=   Energy retained: 46.9388%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #3 at t = 2.46672 s, location (3.41421, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0.714816 m/s,  vy⁻ = -3.36309 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.514553 m/s (friction effect)
+During evaluation of In[1]:=   Status: SLIDING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0.200262 m/s,  vy⁺ = 2.35416 m/s
+During evaluation of In[1]:=   Energy retained: 47.2213%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #4 at t = 2.94667 s, location (3.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0.200262 m/s,  vy⁻ = -2.35416 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.360187 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 1.64792 m/s
+During evaluation of In[1]:=   Energy retained: 48.648%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #5 at t = 3.28263 s, location (3.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -1.64792 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.252131 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 1.15354 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #6 at t = 3.51781 s, location (3.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -1.15354 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.176492 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.807478 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #7 at t = 3.68243 s, location (3.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.807478 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.123544 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.565235 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #8 at t = 3.79767 s, location (3.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.565235 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0864809 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.395664 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #9 at t = 3.87834 s, location (3.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.395664 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0605367 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.276965 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #10 at t = 3.9348 s, location (3.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.276965 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0423757 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.193876 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #11 at t = 3.97433 s, location (3.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.193876 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.029663 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.135713 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #12 at t = 4.002 s, location (3.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.135713 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0207641 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.094999 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   MASS 2 (Green) stopped bouncing
+During evaluation of In[1]:=   Total bounces: 12
+During evaluation of In[1]:=   Final x position: 3.51032 m
+During evaluation of In[1]:= 
+During evaluation of In[1]:= === SIMULATING MASS 3 (Blue) ===
+During evaluation of In[1]:= Mass: 0.7 kg, Radius: 0.15 m, Friction: \[Mu] = 0.09
+During evaluation of In[1]:= Initial: (0.5, 2.5) m, velocity (2.5, 1.) m/s
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #1 at t = 0.801575 s, location (2.50394, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 2.5 m/s,  vy⁻ = -6.86345 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 1.05011 m/s (friction effect)
+During evaluation of In[1]:=   Status: SLIDING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 1.44989 m/s,  vy⁺ = 4.80442 m/s
+During evaluation of In[1]:=   Energy retained: 47.2002%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #2 at t = 1.78107 s, location (3.9241, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 1.44989 m/s,  vy⁻ = -4.80442 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.735076 m/s (friction effect)
+During evaluation of In[1]:=   Status: SLIDING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0.714816 m/s,  vy⁺ = 3.36309 m/s
+During evaluation of In[1]:=   Energy retained: 46.9388%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #3 at t = 2.46672 s, location (4.41421, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0.714816 m/s,  vy⁻ = -3.36309 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.514553 m/s (friction effect)
+During evaluation of In[1]:=   Status: SLIDING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0.200262 m/s,  vy⁺ = 2.35416 m/s
+During evaluation of In[1]:=   Energy retained: 47.2213%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #4 at t = 2.94667 s, location (4.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0.200262 m/s,  vy⁻ = -2.35416 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.360187 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 1.64792 m/s
+During evaluation of In[1]:=   Energy retained: 48.648%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #5 at t = 3.28263 s, location (4.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -1.64792 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.252131 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 1.15354 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #6 at t = 3.51781 s, location (4.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -1.15354 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.176492 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.807478 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #7 at t = 3.68243 s, location (4.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.807478 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.123544 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.565235 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #8 at t = 3.79767 s, location (4.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.565235 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0864809 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.395664 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #9 at t = 3.87834 s, location (4.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.395664 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0605367 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.276965 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #10 at t = 3.9348 s, location (4.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.276965 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0423757 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.193876 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #11 at t = 3.97433 s, location (4.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.193876 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.029663 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.135713 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #12 at t = 4.002 s, location (4.51032, 0.15) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 0.7 kg, \[Mu] = 0.09
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.135713 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0207641 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.094999 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   MASS 3 (Blue) stopped bouncing
+During evaluation of In[1]:=   Total bounces: 12
+During evaluation of In[1]:=   Final x position: 4.51032 m
+During evaluation of In[1]:= 
+During evaluation of In[1]:= === SIMULATING MASS 4 (Magenta) - HEAVY ===
+During evaluation of In[1]:= Mass: 1.5 kg, Radius: 0.2 m, Friction: \[Mu] = 0.15
+During evaluation of In[1]:= Initial: (1.5, 2.5) m, velocity (2.5, 1.) m/s
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #1 at t = 0.794252 s, location (3.48563, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 2.5 m/s,  vy⁻ = -6.79161 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 1.73186 m/s (friction effect)
+During evaluation of In[1]:=   Status: SLIDING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0.768139 m/s,  vy⁺ = 4.75413 m/s
+During evaluation of In[1]:=   Energy retained: 44.2794%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #2 at t = 1.76349 s, location (4.23014, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0.768139 m/s,  vy⁻ = -4.75413 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 1.2123 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 3.32789 m/s
+During evaluation of In[1]:=   Energy retained: 47.7534%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #3 at t = 2.44196 s, location (4.23014, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -3.32789 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.848612 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 2.32952 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #4 at t = 2.91689 s, location (4.23014, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -2.32952 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.594028 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 1.63067 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #5 at t = 3.24934 s, location (4.23014, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -1.63067 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.41582 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 1.14147 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #6 at t = 3.48206 s, location (4.23014, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -1.14147 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.291074 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.799026 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #7 at t = 3.64496 s, location (4.23014, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.799026 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.203752 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.559318 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #8 at t = 3.75899 s, location (4.23014, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.559318 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.142626 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.391523 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #9 at t = 3.83881 s, location (4.23014, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.391523 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0998384 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.274066 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #10 at t = 3.89468 s, location (4.23014, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.274066 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0698868 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.191846 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #11 at t = 3.93379 s, location (4.23014, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.191846 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0489208 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.134292 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   Bounce #12 at t = 3.96117 s, location (4.23014, 0.2) m
+During evaluation of In[1]:=   === IMPACT DETECTED ===
+During evaluation of In[1]:=   Mass: 1.5 kg, \[Mu] = 0.15
+During evaluation of In[1]:=   Pre-impact:  vx⁻ = 0 m/s,  vy⁻ = -0.134292 m/s
+During evaluation of In[1]:=   \[CapitalDelta]Vx = 0.0342446 m/s (friction effect)
+During evaluation of In[1]:=   Status: STICKING
+During evaluation of In[1]:=   Post-impact: vx⁺ = 0 m/s,  vy⁺ = 0.0940047 m/s
+During evaluation of In[1]:=   Energy retained: 49.%
+During evaluation of In[1]:= 
+During evaluation of In[1]:=   MASS 4 (Magenta) - HEAVY stopped bouncing
+During evaluation of In[1]:=   Total bounces: 12
+During evaluation of In[1]:=   Final x position: 4.23014 m
+During evaluation of In[1]:= 
+During evaluation of In[1]:= ========================================
+During evaluation of In[1]:= ALL BOUNCING SIMULATIONS COMPLETE
+During evaluation of In[1]:= ========================================
+During evaluation of In[1]:= 
+COMPARISON OF FINAL POSITIONS:
+During evaluation of In[1]:=   Mass 1 final x: 2.51032 m
+During evaluation of In[1]:=   Mass 2 final x: 3.51032 m
+During evaluation of In[1]:=   Mass 3 final x: 4.51032 m
+During evaluation of In[1]:=   Mass 4 final x: 4.23014 m
+During evaluation of In[1]:= 
+Mass 4 should travel LESS distance horizontally
+During evaluation of In[1]:= because it has MORE FRICTION (loses vx faster)!
+
+During evaluation of In[1]:= ========================================
+During evaluation of In[1]:= CREATING PLOTS AND ANIMATION
+During evaluation of In[1]:= ========================================
+
+Out[65]= 
+During evaluation of In[1]:= ========================================
+During evaluation of In[1]:= MASS-DEPENDENT PHYSICS COMPLETE
+During evaluation of In[1]:= ========================================
+During evaluation of In[1]:= 
+KEY OBSERVATION:
+During evaluation of In[1]:= Watch Mass 4 (Magenta) - it should:
+During evaluation of In[1]:=   1. Lose horizontal velocity FASTER
+During evaluation of In[1]:=   2. Travel LESS DISTANCE overall
+During evaluation of In[1]:= 
+This is because heavier objects have
+During evaluation of In[1]:= MORE friction force at impact!
+During evaluation of In[1]:= ========================================
+
+Out[77]= Manipulate[Module[{pos1$, pos2$, pos3$, pos4$, trail1$, trail2$, trail3$, 
+    trail4$}, pos1$ = GetMassPosition[traj1, t, radiusMass1]; 
+    pos2$ = GetMassPosition[traj2, t, radiusMass1]; 
+    pos3$ = GetMassPosition[traj3, t, radiusMass1]; 
+    pos4$ = GetMassPosition[traj4, t, radiusMass4]; 
+    trail1$ = If[t > 0.1, Table[GetMassPosition[traj1, tau, radiusMass1], 
+       {tau, 0, t, 0.1}], {}]; trail2$ = If[t > 0.1, 
+      Table[GetMassPosition[traj2, tau, radiusMass1], {tau, 0, t, 0.1}], {}]; 
+    trail3$ = If[t > 0.1, Table[GetMassPosition[traj3, tau, radiusMass1], 
+       {tau, 0, t, 0.1}], {}]; trail4$ = If[t > 0.1, 
+      Table[GetMassPosition[traj4, tau, radiusMass4], {tau, 0, t, 0.1}], {}]; 
+    Show[ground, Graphics[{If[Length[trail1$] > 1, {Red, Dashed, 
+         Thickness[0.003], Line[trail1$]}, {}], If[Length[trail2$] > 1, 
+        {Green, Dashed, Thickness[0.003], Line[trail2$]}, {}], 
+       If[Length[trail3$] > 1, {Blue, Dashed, Thickness[0.003], 
+         Line[trail3$]}, {}], If[Length[trail4$] > 1, {Magenta, Dashed, 
+         Thickness[0.003], Line[trail4$]}, {}]}], 
+     Graphics[{{Red, EdgeForm[{Black, Thick}], Disk[pos1$, radiusMass1]}, 
+       {Green, EdgeForm[{Black, Thick}], Disk[pos2$, radiusMass1]}, 
+       {Blue, EdgeForm[{Black, Thick}], Disk[pos3$, radiusMass1]}, 
+       {Magenta, EdgeForm[{Black, Thick}], Disk[pos4$, radiusMass4]}}], 
+     allImpactMarkers, PlotRange -> {{xMinPlot, xMaxPlot}, 
+       {-0.5, throwHeight + 1}}, AspectRatio -> 1/3, Frame -> True, 
+     FrameLabel -> {"x (m)", "y (m)"}, PlotLabel -> StringJoin["t = ", 
+       ToString[NumberForm[t, {4, 2}]], 
+       " s\nMass 4 (BIGGER, MAGENTA) has MORE FRICTION \[RightArrow] Stops sooner!"], 
+     ImageSize -> Large]], {{t, 5.800000000000001}, 0, 8., 0.05, 
+   AnimationRate -> 1, DefaultDuration -> 10, AppearanceElements -> 
+    {"ProgressSlider", "PlayPauseButton", "FasterSlowerButtons", 
+     "DirectionButton"}}, ControlType -> Animator, 
+  AppearanceElements -> None, DefaultBaseStyle -> "Animate", 
+  DefaultLabelStyle -> "AnimateLabel", SynchronousUpdating -> True, 
+  ShrinkingDelay -> 20.]

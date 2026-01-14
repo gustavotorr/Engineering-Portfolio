@@ -1,0 +1,1484 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     59800,       1476]
+NotebookOptionsPosition[     58126,       1445]
+NotebookOutlinePosition[     58533,       1461]
+CellTagsIndexPosition[     58490,       1458]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{"===", "===", "===", "==="}], "=", 
+    RowBox[{
+     RowBox[{
+      RowBox[{
+       RowBox[{
+        RowBox[{
+        "BOUNCING", " ", "MASS", " ", "WITH", " ", "REALISTIC", " ", "MASS"}],
+         "-", 
+        RowBox[{"DEPENDENT", " ", "EFFECTS"}]}], "==="}], "===", "===", "===",
+       "===", "==="}], "=", 
+     RowBox[{"===", "="}]}]}], "*)"}], 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<\\n========================================\>\"", 
+     "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<BOUNCING MASS PHYSICS DEMONSTRATION\>\"", "]"}], ";"}],
+    "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<REALISTIC MASS-DEPENDENT BEHAVIOR\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\\n\>\"", 
+     "]"}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+     RowBox[{"===", "===", "===", "===", "===", "===", "===", "===", "===", 
+      RowBox[{"IMPACT", " ", "PHYSICS", " ", "PARAMETERS"}], "===", "===", "===",
+       "===", "===", "===", "==="}], "=", 
+     RowBox[{"===", "="}]}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"massObject1", "=", "0.7"}], ";"}], "          ", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Mass", " ", "of", " ", "objects", " ", "1"}], "-", 
+     RowBox[{"3", " ", 
+      RowBox[{"(", "kg", ")"}]}]}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"massObject4", "=", "1.5"}], ";"}], "          ", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Mass", " ", "of", " ", "object", " ", "4"}], "-", 
+     RowBox[{
+      RowBox[{"HEAVIER", "!"}], " ", 
+      RowBox[{"(", "kg", ")"}]}]}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"gBounce", "=", "9.81"}], ";"}], "             ", 
+   RowBox[{"(*", 
+    RowBox[{"Gravity", " ", 
+     RowBox[{"(", 
+      RowBox[{"m", "/", 
+       RowBox[{"s", "^", "2"}]}], ")"}]}], "*)"}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"VISUAL", " ", "SIZES"}], "-", 
+     RowBox[{"Heavier", " ", "mass", " ", "looks", " ", 
+      RowBox[{"bigger", "!"}]}]}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"radiusMass1", "=", "0.15"}], ";"}], "         ", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Radius", " ", "for", " ", "masses", " ", "1"}], "-", 
+     RowBox[{"3", " ", 
+      RowBox[{"(", "m", ")"}]}]}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"radiusMass4", "=", "0.20"}], ";"}], "         ", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Radius", " ", "for", " ", "mass", " ", "4"}], "-", 
+     RowBox[{
+      RowBox[{"BIGGER", "!"}], " ", 
+      RowBox[{"(", "m", ")"}]}]}], "*)"}], "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{"Impact", " ", "Parameters"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"eBounce", "=", "0.7"}], ";"}], "              ", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Coefficient", " ", "of", " ", "restitution", " ", "for", " ", "all"}], 
+    "*)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"MASS", "-", 
+     RowBox[{"DEPENDENT", " ", 
+      RowBox[{"FRICTION", ":", 
+       RowBox[{
+       "Heavier", " ", "objects", " ", "have", " ", "more", 
+        " ", "\"\<grip\>\""}]}]}]}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"muBounce1", "=", "0.09"}], ";"}], "           ", 
+   RowBox[{"(*", 
+    RowBox[{"Friction", " ", "for", " ", "light", " ", "masses"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"muBounce4", "=", "0.15"}], ";"}], "           ", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Friction", " ", "for", " ", "heavy", " ", "mass"}], "-", 
+     RowBox[{"MORE", " ", 
+      RowBox[{"FRICTION", "!"}]}]}], "*)"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Ground", " ", "level"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"groundLevel", "=", "0.0"}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Throw", " ", "parameters"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"throwHeight", "=", "2.5"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"throwVelocityX", "=", "2.5"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"throwVelocityY", "=", "1.0"}], ";"}], "\[IndentingNewLine]", "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<Physics Parameters:\>\"", "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<  Mass 1-3: \>\"", ",", "massObject1", 
+      ",", "\"\< kg, friction \[Mu] = \>\"", ",", "muBounce1"}], "]"}], ";"}],
+    "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<  Mass 4: \>\"", ",", "massObject4", ",", "\"\< kg (\>\"", ",", 
+      RowBox[{"Round", "[", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"massObject4", "/", "massObject1"}], "-", "1"}], ")"}], "*",
+         "100"}], "]"}], ",", "\"\<% heavier), friction \[Mu] = \>\"", ",", 
+      "muBounce4", ",", "\"\< (\>\"", ",", 
+      RowBox[{"Round", "[", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"muBounce4", "/", "muBounce1"}], "-", "1"}], ")"}], "*", 
+        "100"}], "]"}], ",", "\"\<% more friction!)\>\""}], "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<  Gravity: \>\"", ",", "gBounce", ",", "\"\< m/s\.b2\>\""}],
+      "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<  Restitution coefficient (e): \>\"", ",", "eBounce"}], 
+     "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<  Throw velocity: (\>\"", ",", "throwVelocityX", 
+      ",", "\"\<, \>\"", ",", "throwVelocityY", ",", "\"\<) m/s\>\""}], "]"}],
+     ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<\\nKey Difference: Heavier mass has MORE friction,\>\"",
+      "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<so it loses horizontal velocity FASTER after bouncing!\
+\>\"", "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<\>\"", "]"}], ";"}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+     RowBox[{"===", "===", "===", "===", "===", "===", "===", "===", "===", 
+      RowBox[{"FLIGHT", " ", "DYNAMICS"}], "===", "===", "===", "===", "===", 
+      "===", 
+      RowBox[{"==", 
+       RowBox[{"==", 
+        RowBox[{"==", 
+         RowBox[{"===", "===", "===", "==="}]}]}]}]}], "="}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"xFlight", "[", 
+     RowBox[{"t_", ",", "x0_", ",", "vx0_"}], "]"}], ":=", 
+    RowBox[{"x0", "+", 
+     RowBox[{"vx0", "*", "t"}]}]}], "\n", 
+   RowBox[{
+    RowBox[{"yFlight", "[", 
+     RowBox[{"t_", ",", "y0_", ",", "vy0_"}], "]"}], ":=", 
+    RowBox[{"y0", "+", 
+     RowBox[{"vy0", "*", "t"}], "-", 
+     RowBox[{"0.5", "*", "gBounce", "*", 
+      RowBox[{"t", "^", "2"}]}]}]}], "\n", 
+   RowBox[{
+    RowBox[{"vxFlight", "[", 
+     RowBox[{"t_", ",", "vx0_"}], "]"}], ":=", "vx0"}], "\n", 
+   RowBox[{
+    RowBox[{"vyFlight", "[", 
+     RowBox[{"t_", ",", "vy0_"}], "]"}], ":=", 
+    RowBox[{"vy0", "-", 
+     RowBox[{"gBounce", "*", "t"}]}]}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+     RowBox[{"===", "===", "===", "===", "===", "===", "===", "===", "===", 
+      RowBox[{"IMPACT", " ", "DETECTION", " ", "AND", " ", "PHYSICS"}], "===",
+       "===", "===", "==="}], "=", 
+     RowBox[{
+      RowBox[{"==", 
+       RowBox[{"==", 
+        RowBox[{"==", 
+         RowBox[{"===", "===", "===", "==="}]}]}]}], "="}]}], "*)"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"FindImpactTime", "[", 
+      RowBox[{"y0_", ",", "vy0_", ",", "radius_"}], "]"}], ":=", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", "sol", "}"}], ",", 
+       RowBox[{
+        RowBox[{"sol", "=", 
+         RowBox[{"Solve", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"y0", "+", 
+              RowBox[{"vy0", "*", "t"}], "-", 
+              RowBox[{"0.5", "*", "gBounce", "*", 
+               RowBox[{"t", "^", "2"}]}]}], "==", "radius"}], "&&", 
+            RowBox[{"t", ">", "0"}]}], ",", "t", ",", "Reals"}], "]"}]}], ";",
+         "\[IndentingNewLine]", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Length", "[", "sol", "]"}], ">", "0"}], ",", 
+          RowBox[{"t", "/.", " ", 
+           RowBox[{"sol", "[", 
+            RowBox[{"[", "1", "]"}], "]"}]}], ",", "Infinity"}], "]"}]}]}], 
+      "]"}]}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"MODIFIED", ":", 
+     RowBox[{
+      RowBox[{"ApplyImpact", " ", "with", " ", "mass"}], "-", 
+      RowBox[{"dependent", " ", "friction"}]}]}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"ApplyImpact", "[", 
+      RowBox[{"vxMinus_", ",", "vyMinus_", ",", "mass_", ",", "mu_"}], "]"}], 
+     ":=", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+        "vxPlus", ",", "vyPlus", ",", "Jn", ",", "Jt", ",", "deltaVx", ",", 
+         "status", ",", "energyRetained"}], "}"}], ",", 
+       RowBox[{
+        RowBox[{"Print", "[", "\"\<  === IMPACT DETECTED ===\>\"", "]"}], ";",
+         "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<  Mass: \>\"", ",", "mass", ",", "\"\< kg, \[Mu] = \>\"",
+           ",", "mu"}], "]"}], ";", "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<  Pre-impact:  vx\:207b = \>\"", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"vxMinus", ",", "4"}], "]"}], 
+          ",", "\"\< m/s,  vy\:207b = \>\"", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"vyMinus", ",", "4"}], "]"}], ",", "\"\< m/s\>\""}], "]"}],
+         ";", "\[IndentingNewLine]", 
+        RowBox[{"(*", 
+         RowBox[{"Normal", ":", 
+          RowBox[{
+           RowBox[{"Newton", "'"}], "s", " ", "Restitution"}]}], "*)"}], 
+        RowBox[{"vyPlus", "=", 
+         RowBox[{
+          RowBox[{"-", "eBounce"}], "*", "vyMinus"}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"Jn", "=", 
+         RowBox[{"mass", "*", 
+          RowBox[{"Abs", "[", "vyMinus", "]"}], "*", 
+          RowBox[{"(", 
+           RowBox[{"1", "+", "eBounce"}], ")"}]}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"(*", 
+         RowBox[{"Tangential", ":", 
+          RowBox[{
+           RowBox[{"Coulomb", " ", "Friction"}], "-", 
+           RowBox[{"use", " ", "provided", " ", "mu"}]}]}], "*)"}], 
+        RowBox[{"Jt", "=", 
+         RowBox[{"mu", "*", "Jn"}]}], ";", "\[IndentingNewLine]", 
+        RowBox[{"deltaVx", "=", 
+         RowBox[{"Jt", "/", "mass"}]}], ";", "\[IndentingNewLine]", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Abs", "[", "vxMinus", "]"}], ">", "deltaVx"}], ",", 
+          RowBox[{
+           RowBox[{"vxPlus", "=", 
+            RowBox[{"vxMinus", "-", 
+             RowBox[{
+              RowBox[{"Sign", "[", "vxMinus", "]"}], "*", "deltaVx"}]}]}], ";",
+            "\[IndentingNewLine]", 
+           RowBox[{"status", "=", "\"\<SLIDING\>\""}]}], ",", 
+          RowBox[{
+           RowBox[{"vxPlus", "=", "0"}], ";", "\[IndentingNewLine]", 
+           RowBox[{"status", "=", "\"\<STICKING\>\""}]}]}], "]"}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"energyRetained", "=", 
+         RowBox[{"100", "*", "0.5", "*", "mass", "*", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"vxPlus", "^", "2"}], "+", 
+             RowBox[{"vyPlus", "^", "2"}]}], ")"}], "/", 
+           RowBox[{"(", 
+            RowBox[{"0.5", "*", "mass", "*", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"vxMinus", "^", "2"}], "+", 
+               RowBox[{"vyMinus", "^", "2"}]}], ")"}]}], ")"}]}]}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<  \[CapitalDelta]Vx = \>\"", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"deltaVx", ",", "4"}], "]"}], 
+          ",", "\"\< m/s (friction effect)\>\""}], "]"}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<  Status: \>\"", ",", "status"}], "]"}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<  Post-impact: vx\:207a = \>\"", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"vxPlus", ",", "4"}], "]"}], 
+          ",", "\"\< m/s,  vy\:207a = \>\"", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"vyPlus", ",", "4"}], "]"}], ",", "\"\< m/s\>\""}], "]"}], 
+        ";", "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<  Energy retained: \>\"", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"energyRetained", ",", "4"}], "]"}], ",", "\"\<%\>\""}], 
+         "]"}], ";", "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", "\"\<\>\"", "]"}], ";", "\[IndentingNewLine]", 
+        RowBox[{"{", 
+         RowBox[{"vxPlus", ",", "vyPlus"}], "}"}]}]}], "]"}]}], ";"}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"===", "===", "===", "===", "===", "===", "===", "===", "===", 
+     RowBox[{"==", 
+      RowBox[{"BUILD", " ", "BOUNCING", " ", "TRAJECTORY"}]}], "===", "===", "===", 
+     RowBox[{"==", 
+      RowBox[{
+       RowBox[{"===", "===", "===", "===", "===", "==="}], "="}]}]}], "*)"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"BuildBouncingTrajectory", "[", 
+      RowBox[{
+      "x0_", ",", "y0_", ",", "vx0_", ",", "vy0_", ",", "tMax_", ",", 
+       "massName_", ",", "mass_", ",", "radius_", ",", "mu_"}], "]"}], ":=", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"segments", "=", 
+          RowBox[{"{", "}"}]}], ",", 
+         RowBox[{"impactTimes", "=", 
+          RowBox[{"{", "}"}]}], ",", 
+         RowBox[{"impactLocations", "=", 
+          RowBox[{"{", "}"}]}], ",", 
+         RowBox[{"t", "=", "0"}], ",", 
+         RowBox[{"x", "=", "x0"}], ",", 
+         RowBox[{"y", "=", "y0"}], ",", 
+         RowBox[{"vx", "=", "vx0"}], ",", 
+         RowBox[{"vy", "=", "vy0"}], ",", "tImpact", ",", "xImpact", ",", 
+         RowBox[{"bounceCount", "=", "0"}]}], "}"}], ",", 
+       RowBox[{
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<=== SIMULATING \>\"", ",", "massName", 
+          ",", "\"\< ===\>\""}], "]"}], ";", "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<Mass: \>\"", ",", "mass", ",", "\"\< kg, Radius: \>\"", 
+          ",", "radius", ",", "\"\< m, Friction: \[Mu] = \>\"", ",", "mu"}], 
+         "]"}], ";", "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<Initial: (\>\"", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"x0", ",", "3"}], "]"}], ",", "\"\<, \>\"", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"y0", ",", "3"}], "]"}], ",", "\"\<) m, velocity (\>\"", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"vx0", ",", "3"}], "]"}], ",", "\"\<, \>\"", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"vy0", ",", "3"}], "]"}], ",", "\"\<) m/s\>\""}], "]"}], ";",
+         "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", "\"\<\>\"", "]"}], ";", "\[IndentingNewLine]", 
+        RowBox[{"While", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"t", "<", "tMax"}], "&&", 
+           RowBox[{"bounceCount", "<", "20"}]}], ",", 
+          RowBox[{
+           RowBox[{"tImpact", "=", 
+            RowBox[{"FindImpactTime", "[", 
+             RowBox[{"y", ",", "vy", ",", "radius"}], "]"}]}], ";", 
+           "\[IndentingNewLine]", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"tImpact", "==", "Infinity"}], "||", 
+              RowBox[{
+               RowBox[{"t", "+", "tImpact"}], ">", "tMax"}]}], ",", 
+             RowBox[{
+              RowBox[{"AppendTo", "[", 
+               RowBox[{"segments", ",", 
+                RowBox[{"{", 
+                 RowBox[{
+                 "t", ",", "tMax", ",", "x", ",", "y", ",", "vx", ",", "vy"}],
+                  "}"}]}], "]"}], ";", "\[IndentingNewLine]", 
+              RowBox[{"Break", "[", "]"}], ";"}]}], "]"}], ";", 
+           "\[IndentingNewLine]", 
+           RowBox[{"AppendTo", "[", 
+            RowBox[{"segments", ",", 
+             RowBox[{"{", 
+              RowBox[{"t", ",", 
+               RowBox[{"t", "+", "tImpact"}], ",", "x", ",", "y", ",", "vx", ",",
+                "vy"}], "}"}]}], "]"}], ";", "\[IndentingNewLine]", 
+           RowBox[{"t", "=", 
+            RowBox[{"t", "+", "tImpact"}]}], ";", "\[IndentingNewLine]", 
+           RowBox[{"xImpact", "=", 
+            RowBox[{"xFlight", "[", 
+             RowBox[{"tImpact", ",", "x", ",", "vx"}], "]"}]}], ";", 
+           "\[IndentingNewLine]", 
+           RowBox[{"x", "=", "xImpact"}], ";", "\[IndentingNewLine]", 
+           RowBox[{"y", "=", "radius"}], ";", "\[IndentingNewLine]", 
+           RowBox[{"vx", "=", 
+            RowBox[{"vxFlight", "[", 
+             RowBox[{"tImpact", ",", "vx"}], "]"}]}], ";", 
+           "\[IndentingNewLine]", 
+           RowBox[{"vy", "=", 
+            RowBox[{"vyFlight", "[", 
+             RowBox[{"tImpact", ",", "vy"}], "]"}]}], ";", 
+           "\[IndentingNewLine]", 
+           RowBox[{"Print", "[", 
+            RowBox[{"\"\<  Bounce #\>\"", ",", 
+             RowBox[{"bounceCount", "+", "1"}], ",", "\"\< at t = \>\"", ",", 
+             RowBox[{"N", "[", 
+              RowBox[{"t", ",", "4"}], "]"}], ",", "\"\< s, location (\>\"", ",", 
+             RowBox[{"N", "[", 
+              RowBox[{"x", ",", "4"}], "]"}], ",", "\"\<, \>\"", ",", 
+             RowBox[{"N", "[", 
+              RowBox[{"y", ",", "4"}], "]"}], ",", "\"\<) m\>\""}], "]"}], ";",
+            "\[IndentingNewLine]", 
+           RowBox[{"AppendTo", "[", 
+            RowBox[{"impactTimes", ",", "t"}], "]"}], ";", 
+           "\[IndentingNewLine]", 
+           RowBox[{"AppendTo", "[", 
+            RowBox[{"impactLocations", ",", 
+             RowBox[{"{", 
+              RowBox[{"x", ",", "y"}], "}"}]}], "]"}], ";", 
+           "\[IndentingNewLine]", 
+           RowBox[{"(*", 
+            RowBox[{
+             RowBox[{"Apply", " ", "impact", " ", "with", " ", "mass"}], "-", 
+             RowBox[{"specific", " ", "friction"}]}], "*)"}], 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"vx", ",", "vy"}], "}"}], "=", 
+            RowBox[{"ApplyImpact", "[", 
+             RowBox[{"vx", ",", "vy", ",", "mass", ",", "mu"}], "]"}]}], ";", 
+           "\[IndentingNewLine]", 
+           RowBox[{"bounceCount", "++"}], ";", "\[IndentingNewLine]", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"Abs", "[", "vy", "]"}], "<", "0.1"}], ",", 
+             RowBox[{
+              RowBox[{"Print", "[", 
+               
+               RowBox[{"\"\<  \>\"", ",", "massName", 
+                ",", "\"\< stopped bouncing\>\""}], "]"}], ";", 
+              "\[IndentingNewLine]", 
+              RowBox[{"AppendTo", "[", 
+               RowBox[{"segments", ",", 
+                RowBox[{"{", 
+                 RowBox[{
+                 "t", ",", "tMax", ",", "x", ",", "radius", ",", "vx", ",", 
+                  "0"}], "}"}]}], "]"}], ";", "\[IndentingNewLine]", 
+              RowBox[{"Break", "[", "]"}], ";"}]}], "]"}], ";"}]}], "]"}], ";",
+         "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<  Total bounces: \>\"", ",", "bounceCount"}], "]"}], ";",
+         "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<  Final x position: \>\"", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"x", ",", "4"}], "]"}], ",", "\"\< m\>\""}], "]"}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", "\"\<\>\"", "]"}], ";", "\[IndentingNewLine]", 
+        RowBox[{"{", 
+         RowBox[{"segments", ",", "impactTimes", ",", "impactLocations"}], 
+         "}"}]}]}], "]"}]}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"===", "===", "===", "===", "===", "===", "===", "===", "===", "===", 
+     RowBox[{"==", 
+      RowBox[{
+       RowBox[{"SIMULATE", " ", "ALL", " ", "4", " ", "MASSES"}], "===", "===",
+        "===", "===", "===", 
+       RowBox[{"==", 
+        RowBox[{
+         RowBox[{"==", 
+          RowBox[{"==", 
+           RowBox[{"==", 
+            RowBox[{"==", 
+             RowBox[{"===", "==="}]}]}]}]}], "="}]}]}]}]}], "*)"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"tSimMax", "=", "8.0"}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"startX1", "=", 
+     RowBox[{"-", "1.5"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"startX2", "=", 
+     RowBox[{"-", "0.5"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"startX3", "=", "0.5"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"startX4", "=", "1.5"}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<RUNNING BOUNCING SIMULATIONS\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\\n\>\"", 
+     "]"}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"traj1", ",", "impacts1", ",", "locs1"}], "}"}], "=", 
+     RowBox[{"BuildBouncingTrajectory", "[", 
+      RowBox[{
+      "startX1", ",", "throwHeight", ",", "throwVelocityX", ",", 
+       "throwVelocityY", ",", "tSimMax", ",", "\"\<MASS 1 (Red)\>\"", ",", 
+       "massObject1", ",", "radiusMass1", ",", "muBounce1"}], "]"}]}], ";"}], 
+   "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"traj2", ",", "impacts2", ",", "locs2"}], "}"}], "=", 
+     RowBox[{"BuildBouncingTrajectory", "[", 
+      RowBox[{
+      "startX2", ",", "throwHeight", ",", "throwVelocityX", ",", 
+       "throwVelocityY", ",", "tSimMax", ",", "\"\<MASS 2 (Green)\>\"", ",", 
+       "massObject1", ",", "radiusMass1", ",", "muBounce1"}], "]"}]}], ";"}], 
+   "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"traj3", ",", "impacts3", ",", "locs3"}], "}"}], "=", 
+     RowBox[{"BuildBouncingTrajectory", "[", 
+      RowBox[{
+      "startX3", ",", "throwHeight", ",", "throwVelocityX", ",", 
+       "throwVelocityY", ",", "tSimMax", ",", "\"\<MASS 3 (Blue)\>\"", ",", 
+       "massObject1", ",", "radiusMass1", ",", "muBounce1"}], "]"}]}], ";"}], 
+   "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"traj4", ",", "impacts4", ",", "locs4"}], "}"}], "=", 
+     RowBox[{"BuildBouncingTrajectory", "[", 
+      RowBox[{
+      "startX4", ",", "throwHeight", ",", "throwVelocityX", ",", 
+       "throwVelocityY", ",", "tSimMax", 
+       ",", "\"\<MASS 4 (Magenta) - HEAVY\>\"", ",", "massObject4", ",", 
+       "radiusMass4", ",", "muBounce4"}], "]"}]}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<ALL BOUNCING SIMULATIONS COMPLETE\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<\\nCOMPARISON OF FINAL POSITIONS:\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<  Mass 1 final x: \>\"", ",", 
+      RowBox[{"N", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Last", "[", "traj1", "]"}], "[", 
+         RowBox[{"[", "3", "]"}], "]"}], ",", "3"}], "]"}], 
+      ",", "\"\< m\>\""}], "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<  Mass 2 final x: \>\"", ",", 
+      RowBox[{"N", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Last", "[", "traj2", "]"}], "[", 
+         RowBox[{"[", "3", "]"}], "]"}], ",", "3"}], "]"}], 
+      ",", "\"\< m\>\""}], "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<  Mass 3 final x: \>\"", ",", 
+      RowBox[{"N", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Last", "[", "traj3", "]"}], "[", 
+         RowBox[{"[", "3", "]"}], "]"}], ",", "3"}], "]"}], 
+      ",", "\"\< m\>\""}], "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<  Mass 4 final x: \>\"", ",", 
+      RowBox[{"N", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Last", "[", "traj4", "]"}], "[", 
+         RowBox[{"[", "3", "]"}], "]"}], ",", "3"}], "]"}], 
+      ",", "\"\< m\>\""}], "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<\\nMass 4 should travel LESS distance horizontally\>\"",
+      "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<because it has MORE FRICTION (loses vx faster)!\\n\>\"",
+      "]"}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+     RowBox[{
+     "===", "===", "===", "===", "===", "===", "===", "===", "===", "==="}], "=", 
+     RowBox[{
+      RowBox[{"POSITION", " ", "FUNCTION"}], "===", "===", "===", "===", "===",
+       "===", "===", "===", 
+      RowBox[{
+       RowBox[{"==", 
+        RowBox[{"==", 
+         RowBox[{"==", "==="}]}]}], "="}]}]}], "*)"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"GetMassPosition", "[", 
+      RowBox[{"traj_", ",", 
+       RowBox[{"time_", "?", "NumericQ"}], ",", "radius_"}], "]"}], ":=", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"seg", ",", "tLocal", ",", "x", ",", "y"}], "}"}], ",", 
+       RowBox[{
+        RowBox[{"seg", "=", 
+         RowBox[{"SelectFirst", "[", 
+          RowBox[{"traj", ",", 
+           RowBox[{
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}], "<=", "time", "<=", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "2", "]"}], "]"}]}], ")"}], "&"}], ",", "None"}], 
+          "]"}]}], ";", "\[IndentingNewLine]", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"seg", "===", "None"}], ",", 
+          RowBox[{"seg", "=", 
+           RowBox[{"Last", "[", "traj", "]"}]}]}], "]"}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"tLocal", "=", 
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{"seg", "===", "None"}], ",", "0", ",", 
+           RowBox[{"time", "-", 
+            RowBox[{"seg", "[", 
+             RowBox[{"[", "1", "]"}], "]"}]}]}], "]"}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"x", "=", 
+         RowBox[{"xFlight", "[", 
+          RowBox[{"tLocal", ",", 
+           RowBox[{"seg", "[", 
+            RowBox[{"[", "3", "]"}], "]"}], ",", 
+           RowBox[{"seg", "[", 
+            RowBox[{"[", "5", "]"}], "]"}]}], "]"}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"y", "=", 
+         RowBox[{"Max", "[", 
+          RowBox[{"radius", ",", 
+           RowBox[{"yFlight", "[", 
+            RowBox[{"tLocal", ",", 
+             RowBox[{"seg", "[", 
+              RowBox[{"[", "4", "]"}], "]"}], ",", 
+             RowBox[{"seg", "[", 
+              RowBox[{"[", "6", "]"}], "]"}]}], "]"}]}], "]"}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"{", 
+         RowBox[{"x", ",", "y"}], "}"}]}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+     RowBox[{"===", "===", "===", "===", "===", "===", "===", "===", "===", "===", 
+      RowBox[{"==", "VISUALIZATION"}], "===", "===", "===", "===", "===", 
+      RowBox[{"==", 
+       RowBox[{"==", 
+        RowBox[{"==", 
+         RowBox[{"===", "===", "===", "===", "==="}]}]}]}]}], "="}], "*)"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<CREATING PLOTS AND ANIMATION\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\\n\>\"", 
+     "]"}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"allLocs", "=", 
+     RowBox[{"Flatten", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"locs1", ",", "locs2", ",", "locs3", ",", "locs4"}], "}"}], ",",
+        "1"}], "]"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"xMaxPlot", "=", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Length", "[", "allLocs", "]"}], ">", "0"}], ",", 
+       RowBox[{
+        RowBox[{"Max", "[", 
+         RowBox[{"allLocs", "[", 
+          RowBox[{"[", 
+           RowBox[{"All", ",", "1"}], "]"}], "]"}], "]"}], "+", "2"}], ",", 
+       RowBox[{"startX4", "+", "5"}]}], "]"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"xMinPlot", "=", 
+     RowBox[{
+      RowBox[{"Min", "[", 
+       RowBox[{"{", 
+        RowBox[{"startX1", ",", "startX2", ",", "startX3", ",", "startX4"}], 
+        "}"}], "]"}], "-", "1"}]}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"ground", "=", 
+     RowBox[{"Graphics", "[", 
+      RowBox[{"{", 
+       RowBox[{"Brown", ",", 
+        RowBox[{"Thickness", "[", "0.015", "]"}], ",", 
+        RowBox[{"Line", "[", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"xMinPlot", ",", "groundLevel"}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"xMaxPlot", ",", "groundLevel"}], "}"}]}], "}"}], "]"}]}],
+        "}"}], "]"}]}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"allImpactMarkers", "=", 
+     RowBox[{"Graphics", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Length", "[", "locs1", "]"}], ">", "0"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"Red", ",", 
+            RowBox[{"PointSize", "[", "0.012", "]"}], ",", 
+            RowBox[{"Point", "[", "locs1", "]"}]}], "}"}], ",", 
+          RowBox[{"{", "}"}]}], "]"}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Length", "[", "locs2", "]"}], ">", "0"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"Green", ",", 
+            RowBox[{"PointSize", "[", "0.012", "]"}], ",", 
+            RowBox[{"Point", "[", "locs2", "]"}]}], "}"}], ",", 
+          RowBox[{"{", "}"}]}], "]"}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Length", "[", "locs3", "]"}], ">", "0"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"Blue", ",", 
+            RowBox[{"PointSize", "[", "0.012", "]"}], ",", 
+            RowBox[{"Point", "[", "locs3", "]"}]}], "}"}], ",", 
+          RowBox[{"{", "}"}]}], "]"}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Length", "[", "locs4", "]"}], ">", "0"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"Magenta", ",", 
+            RowBox[{"PointSize", "[", "0.012", "]"}], ",", 
+            RowBox[{"Point", "[", "locs4", "]"}]}], "}"}], ",", 
+          RowBox[{"{", "}"}]}], "]"}]}], "}"}], "]"}]}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"staticPlot", "=", 
+     RowBox[{"Show", "[", 
+      RowBox[{"ground", ",", 
+       RowBox[{"ParametricPlot", "[", 
+        RowBox[{
+         RowBox[{"GetMassPosition", "[", 
+          RowBox[{"traj1", ",", "t", ",", "radiusMass1"}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"t", ",", "0", ",", "tSimMax"}], "}"}], ",", 
+         RowBox[{"PlotStyle", "->", 
+          RowBox[{"{", 
+           RowBox[{"Thick", ",", "Red", ",", "Dashed"}], "}"}]}], ",", 
+         RowBox[{"PlotPoints", "->", "200"}]}], "]"}], ",", 
+       RowBox[{"ParametricPlot", "[", 
+        RowBox[{
+         RowBox[{"GetMassPosition", "[", 
+          RowBox[{"traj2", ",", "t", ",", "radiusMass1"}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"t", ",", "0", ",", "tSimMax"}], "}"}], ",", 
+         RowBox[{"PlotStyle", "->", 
+          RowBox[{"{", 
+           RowBox[{"Thick", ",", "Green", ",", "Dashed"}], "}"}]}], ",", 
+         RowBox[{"PlotPoints", "->", "200"}]}], "]"}], ",", 
+       RowBox[{"ParametricPlot", "[", 
+        RowBox[{
+         RowBox[{"GetMassPosition", "[", 
+          RowBox[{"traj3", ",", "t", ",", "radiusMass1"}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"t", ",", "0", ",", "tSimMax"}], "}"}], ",", 
+         RowBox[{"PlotStyle", "->", 
+          RowBox[{"{", 
+           RowBox[{"Thick", ",", "Blue", ",", "Dashed"}], "}"}]}], ",", 
+         RowBox[{"PlotPoints", "->", "200"}]}], "]"}], ",", 
+       RowBox[{"ParametricPlot", "[", 
+        RowBox[{
+         RowBox[{"GetMassPosition", "[", 
+          RowBox[{"traj4", ",", "t", ",", "radiusMass4"}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"t", ",", "0", ",", "tSimMax"}], "}"}], ",", 
+         RowBox[{"PlotStyle", "->", 
+          RowBox[{"{", 
+           RowBox[{"Thick", ",", "Magenta", ",", "Dashed"}], "}"}]}], ",", 
+         RowBox[{"PlotPoints", "->", "200"}]}], "]"}], ",", 
+       "allImpactMarkers", ",", 
+       RowBox[{"PlotRange", "->", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"xMinPlot", ",", "xMaxPlot"}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"-", "0.5"}], ",", 
+            RowBox[{"throwHeight", "+", "1"}]}], "}"}]}], "}"}]}], ",", 
+       RowBox[{"AspectRatio", "->", 
+        RowBox[{"1", "/", "3"}]}], ",", 
+       RowBox[{"Frame", "->", "True"}], ",", 
+       RowBox[{"FrameLabel", "->", 
+        RowBox[{"{", 
+         RowBox[{"\"\<x (m)\>\"", ",", "\"\<y (m)\>\""}], "}"}]}], ",", 
+       RowBox[{
+       "PlotLabel", 
+        "->", "\"\<Mass-Dependent Bouncing\\nMass 4 (Magenta) has MORE \
+FRICTION \[RightArrow] stops sooner!\>\""}], ",", 
+       RowBox[{"ImageSize", "->", "Large"}], ",", 
+       RowBox[{"GridLines", "->", "Automatic"}]}], "]"}]}], ";"}], "\n", "\[IndentingNewLine]",
+    "staticPlot", "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"bouncingAnimation", "=", 
+     RowBox[{"Animate", "[", 
+      RowBox[{
+       RowBox[{"Module", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+          "pos1", ",", "pos2", ",", "pos3", ",", "pos4", ",", "trail1", ",", 
+           "trail2", ",", "trail3", ",", "trail4"}], "}"}], ",", 
+         RowBox[{
+          RowBox[{"pos1", "=", 
+           RowBox[{"GetMassPosition", "[", 
+            RowBox[{"traj1", ",", "t", ",", "radiusMass1"}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"pos2", "=", 
+           RowBox[{"GetMassPosition", "[", 
+            RowBox[{"traj2", ",", "t", ",", "radiusMass1"}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"pos3", "=", 
+           RowBox[{"GetMassPosition", "[", 
+            RowBox[{"traj3", ",", "t", ",", "radiusMass1"}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"pos4", "=", 
+           RowBox[{"GetMassPosition", "[", 
+            RowBox[{"traj4", ",", "t", ",", "radiusMass4"}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"trail1", "=", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"t", ">", "0.1"}], ",", 
+             RowBox[{"Table", "[", 
+              RowBox[{
+               RowBox[{"GetMassPosition", "[", 
+                RowBox[{"traj1", ",", "tau", ",", "radiusMass1"}], "]"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"tau", ",", "0", ",", "t", ",", "0.1"}], "}"}]}], 
+              "]"}], ",", 
+             RowBox[{"{", "}"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"trail2", "=", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"t", ">", "0.1"}], ",", 
+             RowBox[{"Table", "[", 
+              RowBox[{
+               RowBox[{"GetMassPosition", "[", 
+                RowBox[{"traj2", ",", "tau", ",", "radiusMass1"}], "]"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"tau", ",", "0", ",", "t", ",", "0.1"}], "}"}]}], 
+              "]"}], ",", 
+             RowBox[{"{", "}"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"trail3", "=", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"t", ">", "0.1"}], ",", 
+             RowBox[{"Table", "[", 
+              RowBox[{
+               RowBox[{"GetMassPosition", "[", 
+                RowBox[{"traj3", ",", "tau", ",", "radiusMass1"}], "]"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"tau", ",", "0", ",", "t", ",", "0.1"}], "}"}]}], 
+              "]"}], ",", 
+             RowBox[{"{", "}"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"trail4", "=", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"t", ">", "0.1"}], ",", 
+             RowBox[{"Table", "[", 
+              RowBox[{
+               RowBox[{"GetMassPosition", "[", 
+                RowBox[{"traj4", ",", "tau", ",", "radiusMass4"}], "]"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"tau", ",", "0", ",", "t", ",", "0.1"}], "}"}]}], 
+              "]"}], ",", 
+             RowBox[{"{", "}"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"Show", "[", 
+           RowBox[{"ground", ",", 
+            RowBox[{"Graphics", "[", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Length", "[", "trail1", "]"}], ">", "1"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"Red", ",", "Dashed", ",", 
+                   RowBox[{"Thickness", "[", "0.003", "]"}], ",", 
+                   RowBox[{"Line", "[", "trail1", "]"}]}], "}"}], ",", 
+                 RowBox[{"{", "}"}]}], "]"}], ",", 
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Length", "[", "trail2", "]"}], ">", "1"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"Green", ",", "Dashed", ",", 
+                   RowBox[{"Thickness", "[", "0.003", "]"}], ",", 
+                   RowBox[{"Line", "[", "trail2", "]"}]}], "}"}], ",", 
+                 RowBox[{"{", "}"}]}], "]"}], ",", 
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Length", "[", "trail3", "]"}], ">", "1"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"Blue", ",", "Dashed", ",", 
+                   RowBox[{"Thickness", "[", "0.003", "]"}], ",", 
+                   RowBox[{"Line", "[", "trail3", "]"}]}], "}"}], ",", 
+                 RowBox[{"{", "}"}]}], "]"}], ",", 
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Length", "[", "trail4", "]"}], ">", "1"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"Magenta", ",", "Dashed", ",", 
+                   RowBox[{"Thickness", "[", "0.003", "]"}], ",", 
+                   RowBox[{"Line", "[", "trail4", "]"}]}], "}"}], ",", 
+                 RowBox[{"{", "}"}]}], "]"}]}], "}"}], "]"}], ",", 
+            RowBox[{"Graphics", "[", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"{", 
+                RowBox[{"Red", ",", 
+                 RowBox[{"EdgeForm", "[", 
+                  RowBox[{"{", 
+                   RowBox[{"Black", ",", "Thick"}], "}"}], "]"}], ",", 
+                 RowBox[{"Disk", "[", 
+                  RowBox[{"pos1", ",", "radiusMass1"}], "]"}]}], "}"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"Green", ",", 
+                 RowBox[{"EdgeForm", "[", 
+                  RowBox[{"{", 
+                   RowBox[{"Black", ",", "Thick"}], "}"}], "]"}], ",", 
+                 RowBox[{"Disk", "[", 
+                  RowBox[{"pos2", ",", "radiusMass1"}], "]"}]}], "}"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"Blue", ",", 
+                 RowBox[{"EdgeForm", "[", 
+                  RowBox[{"{", 
+                   RowBox[{"Black", ",", "Thick"}], "}"}], "]"}], ",", 
+                 RowBox[{"Disk", "[", 
+                  RowBox[{"pos3", ",", "radiusMass1"}], "]"}]}], "}"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"Magenta", ",", 
+                 RowBox[{"EdgeForm", "[", 
+                  RowBox[{"{", 
+                   RowBox[{"Black", ",", "Thick"}], "}"}], "]"}], ",", 
+                 RowBox[{"Disk", "[", 
+                  RowBox[{"pos4", ",", "radiusMass4"}], "]"}]}], "}"}]}], 
+              "}"}], "]"}], ",", "allImpactMarkers", ",", 
+            RowBox[{"PlotRange", "->", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"{", 
+                RowBox[{"xMinPlot", ",", "xMaxPlot"}], "}"}], ",", 
+               RowBox[{"{", 
+                RowBox[{
+                 RowBox[{"-", "0.5"}], ",", 
+                 RowBox[{"throwHeight", "+", "1"}]}], "}"}]}], "}"}]}], ",", 
+            RowBox[{"AspectRatio", "->", 
+             RowBox[{"1", "/", "3"}]}], ",", 
+            RowBox[{"Frame", "->", "True"}], ",", 
+            RowBox[{"FrameLabel", "->", 
+             RowBox[{"{", 
+              RowBox[{"\"\<x (m)\>\"", ",", "\"\<y (m)\>\""}], "}"}]}], ",", 
+            RowBox[{"PlotLabel", "->", 
+             RowBox[{"\"\<t = \>\"", "<>", 
+              RowBox[{"ToString", "[", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{"t", ",", 
+                 RowBox[{"{", 
+                  RowBox[{"4", ",", "2"}], "}"}]}], "]"}], "]"}], 
+              "<>", "\"\< s\\nMass 4 (BIGGER, MAGENTA) has MORE FRICTION \
+\[RightArrow] Stops sooner!\>\""}]}], ",", 
+            RowBox[{"ImageSize", "->", "Large"}]}], "]"}]}]}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"t", ",", "0", ",", "tSimMax", ",", "0.05"}], "}"}], ",", 
+       RowBox[{"AnimationRate", "->", "1"}], ",", 
+       RowBox[{"DefaultDuration", "->", "10"}]}], "]"}]}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<MASS-DEPENDENT PHYSICS COMPLETE\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<\\nKEY OBSERVATION:\>\"", "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<Watch Mass 4 (Magenta) - it should:\>\"", "]"}], ";"}],
+    "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<  1. Lose horizontal velocity FASTER\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<  2. Travel LESS DISTANCE overall\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<\\nThis is because heavier objects have\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<MORE friction force at impact!\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\\n\>\"", 
+     "]"}], ";"}], "\[IndentingNewLine]", "\n", 
+   "bouncingAnimation"}]}]], "Input",
+ CellChangeTimes->{{3.977397688477808*^9, 
+  3.97739775491905*^9}},ExpressionUUID->"44f35d1a-0719-d845-8de6-\
+702aa6dac0b8"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{"(*", " ", 
+   RowBox[{"===", "===", "===", "===", "===", "===", "===", "===", "===", "===", 
+    RowBox[{"==", 
+     RowBox[{"EXPORT", " ", "ANIMATION", " ", "TO", " ", "MP4"}]}], "===", "===",
+     "===", "===", "===", "===", "===", "===", "===", "===", "=="}], "*)"}], 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<EXPORTING ANIMATION TO MP4\>\"", "]"}], ";"}], 
+   "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\\n\>\"", 
+     "]"}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Create", " ", "the", " ", "animation", " ", "frames"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"frames", "=", 
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Module", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+          "pos1", ",", "pos2", ",", "pos3", ",", "pos4", ",", "trail1", ",", 
+           "trail2", ",", "trail3", ",", "trail4"}], "}"}], ",", 
+         RowBox[{
+          RowBox[{"pos1", "=", 
+           RowBox[{"GetMassPosition", "[", 
+            RowBox[{"traj1", ",", "t", ",", "radiusMass1"}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"pos2", "=", 
+           RowBox[{"GetMassPosition", "[", 
+            RowBox[{"traj2", ",", "t", ",", "radiusMass1"}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"pos3", "=", 
+           RowBox[{"GetMassPosition", "[", 
+            RowBox[{"traj3", ",", "t", ",", "radiusMass1"}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"pos4", "=", 
+           RowBox[{"GetMassPosition", "[", 
+            RowBox[{"traj4", ",", "t", ",", "radiusMass4"}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"trail1", "=", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"t", ">", "0.1"}], ",", 
+             RowBox[{"Table", "[", 
+              RowBox[{
+               RowBox[{"GetMassPosition", "[", 
+                RowBox[{"traj1", ",", "tau", ",", "radiusMass1"}], "]"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"tau", ",", "0", ",", "t", ",", "0.1"}], "}"}]}], 
+              "]"}], ",", 
+             RowBox[{"{", "}"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"trail2", "=", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"t", ">", "0.1"}], ",", 
+             RowBox[{"Table", "[", 
+              RowBox[{
+               RowBox[{"GetMassPosition", "[", 
+                RowBox[{"traj2", ",", "tau", ",", "radiusMass1"}], "]"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"tau", ",", "0", ",", "t", ",", "0.1"}], "}"}]}], 
+              "]"}], ",", 
+             RowBox[{"{", "}"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"trail3", "=", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"t", ">", "0.1"}], ",", 
+             RowBox[{"Table", "[", 
+              RowBox[{
+               RowBox[{"GetMassPosition", "[", 
+                RowBox[{"traj3", ",", "tau", ",", "radiusMass1"}], "]"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"tau", ",", "0", ",", "t", ",", "0.1"}], "}"}]}], 
+              "]"}], ",", 
+             RowBox[{"{", "}"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"trail4", "=", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"t", ">", "0.1"}], ",", 
+             RowBox[{"Table", "[", 
+              RowBox[{
+               RowBox[{"GetMassPosition", "[", 
+                RowBox[{"traj4", ",", "tau", ",", "radiusMass4"}], "]"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"tau", ",", "0", ",", "t", ",", "0.1"}], "}"}]}], 
+              "]"}], ",", 
+             RowBox[{"{", "}"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"Show", "[", 
+           RowBox[{"ground", ",", 
+            RowBox[{"Graphics", "[", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Length", "[", "trail1", "]"}], ">", "1"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"Red", ",", "Dashed", ",", 
+                   RowBox[{"Thickness", "[", "0.003", "]"}], ",", 
+                   RowBox[{"Line", "[", "trail1", "]"}]}], "}"}], ",", 
+                 RowBox[{"{", "}"}]}], "]"}], ",", 
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Length", "[", "trail2", "]"}], ">", "1"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"Green", ",", "Dashed", ",", 
+                   RowBox[{"Thickness", "[", "0.003", "]"}], ",", 
+                   RowBox[{"Line", "[", "trail2", "]"}]}], "}"}], ",", 
+                 RowBox[{"{", "}"}]}], "]"}], ",", 
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Length", "[", "trail3", "]"}], ">", "1"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"Blue", ",", "Dashed", ",", 
+                   RowBox[{"Thickness", "[", "0.003", "]"}], ",", 
+                   RowBox[{"Line", "[", "trail3", "]"}]}], "}"}], ",", 
+                 RowBox[{"{", "}"}]}], "]"}], ",", 
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Length", "[", "trail4", "]"}], ">", "1"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"Magenta", ",", "Dashed", ",", 
+                   RowBox[{"Thickness", "[", "0.003", "]"}], ",", 
+                   RowBox[{"Line", "[", "trail4", "]"}]}], "}"}], ",", 
+                 RowBox[{"{", "}"}]}], "]"}]}], "}"}], "]"}], ",", 
+            RowBox[{"Graphics", "[", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"{", 
+                RowBox[{"Red", ",", 
+                 RowBox[{"EdgeForm", "[", 
+                  RowBox[{"{", 
+                   RowBox[{"Black", ",", "Thick"}], "}"}], "]"}], ",", 
+                 RowBox[{"Disk", "[", 
+                  RowBox[{"pos1", ",", "radiusMass1"}], "]"}]}], "}"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"Green", ",", 
+                 RowBox[{"EdgeForm", "[", 
+                  RowBox[{"{", 
+                   RowBox[{"Black", ",", "Thick"}], "}"}], "]"}], ",", 
+                 RowBox[{"Disk", "[", 
+                  RowBox[{"pos2", ",", "radiusMass1"}], "]"}]}], "}"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"Blue", ",", 
+                 RowBox[{"EdgeForm", "[", 
+                  RowBox[{"{", 
+                   RowBox[{"Black", ",", "Thick"}], "}"}], "]"}], ",", 
+                 RowBox[{"Disk", "[", 
+                  RowBox[{"pos3", ",", "radiusMass1"}], "]"}]}], "}"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"Magenta", ",", 
+                 RowBox[{"EdgeForm", "[", 
+                  RowBox[{"{", 
+                   RowBox[{"Black", ",", "Thick"}], "}"}], "]"}], ",", 
+                 RowBox[{"Disk", "[", 
+                  RowBox[{"pos4", ",", "radiusMass4"}], "]"}]}], "}"}]}], 
+              "}"}], "]"}], ",", "allImpactMarkers", ",", 
+            RowBox[{"PlotRange", "->", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"{", 
+                RowBox[{"xMinPlot", ",", "xMaxPlot"}], "}"}], ",", 
+               RowBox[{"{", 
+                RowBox[{
+                 RowBox[{"-", "0.5"}], ",", 
+                 RowBox[{"throwHeight", "+", "1"}]}], "}"}]}], "}"}]}], ",", 
+            RowBox[{"AspectRatio", "->", 
+             RowBox[{"1", "/", "3"}]}], ",", 
+            RowBox[{"Frame", "->", "True"}], ",", 
+            RowBox[{"FrameLabel", "->", 
+             RowBox[{"{", 
+              RowBox[{"\"\<x (m)\>\"", ",", "\"\<y (m)\>\""}], "}"}]}], ",", 
+            RowBox[{"PlotLabel", "->", 
+             RowBox[{"\"\<t = \>\"", "<>", 
+              RowBox[{"ToString", "[", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{"t", ",", 
+                 RowBox[{"{", 
+                  RowBox[{"4", ",", "2"}], "}"}]}], "]"}], "]"}], 
+              "<>", "\"\< s\\nMass 4 (BIGGER, MAGENTA) has MORE FRICTION \
+\[RightArrow] Stops sooner!\>\""}]}], ",", 
+            RowBox[{"ImageSize", "->", "1200"}]}], "  ", 
+           RowBox[{"(*", 
+            RowBox[{"High", " ", "resolution", " ", "for", " ", "video"}], 
+            "*)"}], "]"}]}]}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"t", ",", "0", ",", "tSimMax", ",", "0.05"}], "}"}]}], "  ", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"0.05", " ", "second", " ", "intervals"}], "=", 
+        RowBox[{
+         RowBox[{"20", " ", "fps", " ", "for", " ", "8", " ", "seconds"}], "=", 
+         RowBox[{"160", " ", "frames"}]}]}], "*)"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<Generated \>\"", ",", 
+      RowBox[{"Length", "[", "frames", "]"}], ",", "\"\< frames\>\""}], "]"}],
+     ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<Exporting to MP4...\\n\>\"", "]"}], ";"}], 
+   "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Export", " ", "to", " ", "MP4"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Export", "[", 
+     RowBox[{"\"\<bouncing_balls_animation.mp4\>\"", ",", "frames", ",", 
+      RowBox[{"\"\<FrameRate\>\"", "->", "20"}]}], "]"}], ";"}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<EXPORT COMPLETE!\>\"", "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<========================================\>\"", "]"}], 
+    ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<File saved as: bouncing_balls_animation.mp4\>\"", 
+     "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<Duration: \>\"", ",", "tSimMax", ",", "\"\< seconds\>\""}], 
+     "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<Frame rate: 20 fps\>\"", "]"}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<Total frames: \>\"", ",", 
+      RowBox[{"Length", "[", "frames", "]"}]}], "]"}], ";"}]}]}]], "Input",
+ CellChangeTimes->{{3.9773989526990604`*^9, 3.977398953945196*^9}},
+ CellLabel->"In[78]:=",ExpressionUUID->"db93d8c3-e046-5145-ba02-62678a4c1206"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["\<\"========================================\"\>"], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.9773989576518574`*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"cd694f84-c768-ab4f-94bc-6f54e5eaf3f7"],
+
+Cell[BoxData["\<\"EXPORTING ANIMATION TO MP4\"\>"], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.977398957652857*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"fbcab496-fb62-224a-9ac3-b7e524dcc0a3"],
+
+Cell[BoxData["\<\"========================================\\n\"\>"], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.9773989576548576`*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"b11603a7-059a-5642-8f8f-aca8dbd1f49f"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Generated \"\>", "\[InvisibleSpace]", "161", 
+   "\[InvisibleSpace]", "\<\" frames\"\>"}],
+  SequenceForm["Generated ", 161, " frames"],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.9773989579455376`*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"a1a50bba-4ea4-024d-a74e-e58bdd7711a9"],
+
+Cell[BoxData["\<\"Exporting to MP4...\\n\"\>"], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.977398957946537*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"24a9c601-3a8f-304a-93ef-e41419a89408"],
+
+Cell[BoxData["\<\"========================================\"\>"], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.977398970355999*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"80af7117-2be4-a044-8f72-66f16bd27639"],
+
+Cell[BoxData["\<\"EXPORT COMPLETE!\"\>"], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.9773989703569927`*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"9c42fdb0-978b-3f49-b63c-803f8c5dbd1e"],
+
+Cell[BoxData["\<\"========================================\"\>"], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.977398970357992*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"4d439709-a333-ce4c-a4db-20d1235fa126"],
+
+Cell[BoxData["\<\"File saved as: bouncing_balls_animation.mp4\"\>"], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.9773989703589993`*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"d250d47b-2ef5-7342-9b5f-4efa762c7523"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Duration: \"\>", "\[InvisibleSpace]", "8.`", 
+   "\[InvisibleSpace]", "\<\" seconds\"\>"}],
+  SequenceForm["Duration: ", 8., " seconds"],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.9773989703609924`*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"0da58bc3-979f-164a-9ab9-1b7fd8ff876a"],
+
+Cell[BoxData["\<\"Frame rate: 20 fps\"\>"], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.9773989703619995`*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"494b2666-5a2b-eb4d-9c24-a52e870a7aef"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Total frames: \"\>", "\[InvisibleSpace]", "161"}],
+  SequenceForm["Total frames: ", 161],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.9773974723861046`*^9, 3.977398970363001*^9},
+ CellLabel->
+  "During evaluation of \
+In[78]:=",ExpressionUUID->"4ab85773-62a2-fd43-8fbe-342bf3499126"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{810, 1371.75},
+WindowMargins->{{Automatic, -816}, {-235.5, Automatic}},
+FrontEndVersion->"14.3 for Microsoft Windows (64-bit) (July 8, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"18acfbe3-ab40-c046-9824-fa3d3cce6d92"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 43525, 1083, 4309, "Input",ExpressionUUID->"44f35d1a-0719-d845-8de6-702aa6dac0b8"],
+Cell[CellGroupData[{
+Cell[44104, 1107, 10677, 246, 865, "Input",ExpressionUUID->"db93d8c3-e046-5145-ba02-62678a4c1206"],
+Cell[CellGroupData[{
+Cell[54806, 1357, 247, 4, 22, "Print",ExpressionUUID->"cd694f84-c768-ab4f-94bc-6f54e5eaf3f7"],
+Cell[55056, 1363, 231, 4, 22, "Print",ExpressionUUID->"fbcab496-fb62-224a-9ac3-b7e524dcc0a3"],
+Cell[55290, 1369, 250, 4, 39, "Print",ExpressionUUID->"b11603a7-059a-5642-8f8f-aca8dbd1f49f"],
+Cell[55543, 1375, 388, 9, 22, "Print",ExpressionUUID->"a1a50bba-4ea4-024d-a74e-e58bdd7711a9"],
+Cell[55934, 1386, 227, 4, 39, "Print",ExpressionUUID->"24a9c601-3a8f-304a-93ef-e41419a89408"],
+Cell[56164, 1392, 245, 4, 22, "Print",ExpressionUUID->"80af7117-2be4-a044-8f72-66f16bd27639"],
+Cell[56412, 1398, 223, 4, 22, "Print",ExpressionUUID->"9c42fdb0-978b-3f49-b63c-803f8c5dbd1e"],
+Cell[56638, 1404, 245, 4, 22, "Print",ExpressionUUID->"4d439709-a333-ce4c-a4db-20d1235fa126"],
+Cell[56886, 1410, 250, 4, 22, "Print",ExpressionUUID->"d250d47b-2ef5-7342-9b5f-4efa762c7523"],
+Cell[57139, 1416, 389, 9, 22, "Print",ExpressionUUID->"0da58bc3-979f-164a-9ab9-1b7fd8ff876a"],
+Cell[57531, 1427, 225, 4, 22, "Print",ExpressionUUID->"494b2666-5a2b-eb4d-9c24-a52e870a7aef"],
+Cell[57759, 1433, 339, 8, 22, "Print",ExpressionUUID->"4ab85773-62a2-fd43-8fbe-342bf3499126"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
