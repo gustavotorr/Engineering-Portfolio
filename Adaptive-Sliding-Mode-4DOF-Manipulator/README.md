@@ -16,10 +16,10 @@
 
 ---
 
-![Manipulator Demo](media/robot_pick_place.gif)
+https://github.com/user-attachments/assets/07cabbb9-8b7c-4f54-b42b-d2f3b118daed
 
-*Four sequential pick-and-place operations inside a constrained diamond workspace*
-
+*Four sequential pick-and-place operations inside a constrained diamond workspace.*
+*The last mass was intentionally made larger than the motor gains could handle.*
 </div>
 
 ---
@@ -57,17 +57,8 @@ This is exactly the kind of uncertainty encountered in **real robots** — where
 ### 🎥 Simulation Videos
 
 **Multi-Target Pickup Sequence**
-*(Insert your exported animation here)*
 
-```
-media/sequential_pickup.mp4
-```
-
-**Single-Mass Trajectory (with payload pickup)**
-
-```
-media/mass1_pickup.mp4
-```
+https://github.com/user-attachments/assets/1e1aa50d-9fc5-4f41-ac36-7a1ad51ee75e
 
 ---
 
@@ -85,14 +76,55 @@ Tracking error spikes when mass is picked up, then rapidly converges back to zer
 
 ---
 
-### 📉 Analysis Plots (Placeholders)
+### 📉 Analysis Plots
 
-```
-plots/control_torque.png
-plots/tracking_error.png
-plots/mass_estimation.png
-plots/joint_angles.png
-```
+<table>
+<tr>
+<td width="50%">
+
+<img src="https://github.com/user-attachments/assets/6774cf2e-ad96-4138-9771-5968a526f8f7" width="100%"/>
+
+**Control Torques — Mass 1**
+
+</td>
+<td width="50%">
+
+<img src="https://github.com/user-attachments/assets/3d3e2037-2abc-4284-a2c6-0ee23aabecc0" width="100%"/>
+
+**Tracking Error — Mass 1**
+
+</td>
+</tr>
+
+<tr>
+<td width="50%">
+
+<img src="https://github.com/user-attachments/assets/acf1f531-9c1f-49a1-a1d0-78b0cd9397f9" width="100%"/>
+
+**Mass Parameter Error (Link 4)**
+
+</td>
+<td width="50%">
+
+<img src="https://github.com/user-attachments/assets/6aa295ce-be83-45b1-a79f-1a3159f41a52" width="100%"/>
+
+**Joint Angles — All 4 Masses**
+
+</td>
+</tr>
+
+<tr>
+<td width="50%">
+
+<img src="https://github.com/user-attachments/assets/c4e70d44-bb0e-4370-84a5-4157ffe8cfa2" width="100%"/>
+
+**Joint-1 Torque Comparison**
+
+</td>
+<td></td>
+</tr>
+</table>
+
 
 These show:
 
@@ -186,15 +218,13 @@ This “Part 2” extends the project beyond free-space manipulation into **cont
 
 **Animation (tip impacts wall, then bounces and re-tracks):**
 
-```
-media/robot_wall_bounce.mp4
-```
+https://github.com/user-attachments/assets/06b2e12b-590d-44d9-97f1-db28dafec640
 
 **Static trajectory plot (Blue = approach, Green = bounce):**
 
-```
-plots/robot_wall_bounce_static.png
-```
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/ebb155c5-d221-496b-915a-00e5557a35fe" width="400">
+</p>
 
 ---
 
@@ -360,6 +390,7 @@ This is written at the level of **Slotine & Li** and **Spong & Vidyasagar**.
 *Advanced nonlinear control meets real robotic uncertainty*
 
 </div>
+
 
 
 
