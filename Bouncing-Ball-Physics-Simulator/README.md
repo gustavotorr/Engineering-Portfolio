@@ -42,6 +42,12 @@ This simulation demonstrates **why heavier objects don't always travel farther**
 
 ## 📊 Results
 
+
+
+https://github.com/user-attachments/assets/9c2857ed-fe06-41ed-be3e-349a7bf6ae1a
+
+
+
 ### Performance Comparison
 
 ```
