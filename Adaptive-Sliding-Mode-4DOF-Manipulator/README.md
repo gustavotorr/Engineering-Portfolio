@@ -338,7 +338,7 @@ A **graduate-level technical report** is included that derives:
 * Impact mechanics
 * Performance analysis
 
-📄 `report/Adaptive_Sliding_Mode_4DOF_Report.pdf`
+📄 `Adaptive-Sliding-Mode-4DOF-Manipulator/Report/Adaptive-Sliding-Mode-4DOF-Manipulator.pdf`
 
 This is written at the level of **Slotine & Li** and **Spong & Vidyasagar**.
 
@@ -360,5 +360,6 @@ This is written at the level of **Slotine & Li** and **Spong & Vidyasagar**.
 *Advanced nonlinear control meets real robotic uncertainty*
 
 </div>
+
 
 
