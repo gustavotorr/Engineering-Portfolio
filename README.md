@@ -19,7 +19,7 @@ My engineering focus is on:
 - Physical AI systems  
 - Manufacturing optimization  
 
-I work at the intersection of **hardware, control theory, and software**, designing systems that **move, sense, and think**.
+I work at the intersection of **hardware, control theory, and software**, designing systems that **move, sense, and think** 
 
 ---
 
