@@ -6,6 +6,9 @@
   </a>
 </p>
 
+<p align="center"><b>▶ Click image to watch demo video</b></p>
+>
+
 
 # Ball-and-Beam PID Controller
 
